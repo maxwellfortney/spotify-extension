@@ -167,6 +167,11 @@ function getColors() {
 
   img.setAttribute('crossOrigin', 'Anonymous');
 
+  // in case the image is not fully loaded
+  if (!(img as HTMLImageElement).complete) {
+    return result;
+  }
+
   // FireFox security
   try {
     palette = colorThief.getPalette(img);
