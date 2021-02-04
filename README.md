@@ -8,7 +8,7 @@
 
 Spotify web exntesion, check out the story here:
 
-- [https://www.dzungnguyen.dev/blog/develop-spotify-player-web-extension](https://www.dzungnguyen.dev/blog/develop-spotify-player-web-extension)
+- [https://codeburst.io/develop-spotify-player-web-extension-bffe5538b8ec](https://codeburst.io/develop-spotify-player-web-extension-bffe5538b8ec)
 
 **Note:** This web extension was developed using [web-extension-boilerplate](https://github.com/davidnguyen179/web-extension-boilerplate)
 
