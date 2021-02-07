@@ -40,3 +40,9 @@ jobs:
         run: npm test -- --coverage
       - name: Trigger Codecov
         run: bash <(curl -s https://codecov.io/bash)
+      - name: Run build Chrome
+        run: npm run chrome
+      - name: Run build Firefox
+        run: npm run firefox
+      - name: Run build Edge
+        run: npm run edge
