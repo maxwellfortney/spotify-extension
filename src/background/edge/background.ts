@@ -34,8 +34,10 @@ chrome.contextMenus.onClicked.addListener(function (info) {
 
 function setChristmasIcon() {
   if (isChristmasPeriod()) {
-    chrome.browserAction.setIcon({ path: 'images/spotify-mini-player-xmas-128.png' });
+    // @ts-ignore
+    chrome.action.setIcon({ path: 'images/spotify-mini-player-xmas-128.png' });
   } else {
-    chrome.browserAction.setIcon({ path: 'images/spotify-mini-player-128.png' });
+    // @ts-ignore
+    chrome.action.setIcon({ path: 'images/spotify-mini-player-128.png' });
   }
 }
