@@ -36,7 +36,6 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: './images', to: `../${BUILD_DIR_NAME}/images`, context: 'public' },
-        { from: './background.html', to: `../${BUILD_DIR_NAME}/background.html`, context: 'public' },
         { from: './popup.html', to: `../${BUILD_DIR_NAME}/popup.html`, context: 'public' },
         { from: `${browser}_manifest.json`, to: `../${BUILD_DIR_NAME}/manifest.json`, context: 'public' },
       ],
