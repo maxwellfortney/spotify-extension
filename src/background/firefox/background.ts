@@ -1,5 +1,5 @@
 /// <reference types="web-ext-types"/>
-import { CONTEXT_MENU_ITEM, WEB_PLAYER_URL, HOUR_IN_SECOND } from '../../lib/constants';
+import { CONTEXT_MENU_ITEM, WEB_PLAYER_URL, HOUR_IN_SECOND, CONTEXT_MENU_ITEM_TEXT } from '../../lib/constants';
 import { isChristmasPeriod } from '../../lib/utils';
 
 setChristmasIcon();
@@ -7,7 +7,7 @@ setInterval(setChristmasIcon, HOUR_IN_SECOND);
 
 browser.menus.create({
   id: CONTEXT_MENU_ITEM,
-  title: 'Search Spotify for "%s"',
+  title: CONTEXT_MENU_ITEM_TEXT,
   contexts: ['selection'],
 });
 
