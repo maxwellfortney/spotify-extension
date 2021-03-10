@@ -11,6 +11,7 @@ import {
   removeTrack,
   checkSavedTrack,
   repeat,
+  setVolume,
 } from '../lib/spotify';
 import { parse } from '../lib/parse';
 import { playback } from './fixtures/playback';
@@ -46,7 +47,7 @@ describe('testing Spotify class', () => {
     isRestricted: false,
     name: 'Web Player (Chrome)',
     type: 'Computer',
-    volumePercent: '100',
+    volumePercent: 100,
   };
   const originalFetch = window.fetch;
 
@@ -269,6 +270,21 @@ describe('testing Spotify class', () => {
     window.fetch = mockFetchReject();
     try {
       await repeat('track', token.accessToken);
+    } catch (e) {
+      expect(e.ok).toBeFalsy();
+    }
+  });
+
+  it('should run set volume', async () => {
+    window.fetch = mockFetchResolve();
+    const { ok } = await setVolume(50, token.accessToken);
+    expect(ok).toBeTruthy();
+  });
+
+  it('should not set volume', async () => {
+    window.fetch = mockFetchReject();
+    try {
+      await setVolume(50, token.accessToken);
     } catch (e) {
       expect(e.ok).toBeFalsy();
     }

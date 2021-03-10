@@ -1,7 +1,7 @@
 import { TrackInfo, Token, Device, PlayerState } from './interface';
 import { parse } from './parse';
 import { getDevices, getAccessToken, getCurrentPlayBack, getRecentlyPlayedTrack, checkSavedTrack } from './spotify';
-import { displayControlButtons, displayBox, displayTrackInfo, registerEvents } from './dom';
+import { displayControlButtons, displayBox, displayTrackInfo, registerEvents, displayVolumeControl } from './dom';
 import { CACHE_KEY } from './constants';
 import { shouldUpdateCache } from './utils';
 import { Storage } from './storage';
@@ -85,9 +85,10 @@ export class App {
     } else {
       displayControlButtons('play');
     }
+    displayVolumeControl(this.device.volumePercent, true);
 
     // register events for player controls
-    // prev, play, next
+    // prev, play, next, volume, mute
     registerEvents(this.token, this.device, this.track, this.render.bind(this));
   };
 

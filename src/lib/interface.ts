@@ -14,7 +14,7 @@ export interface Device {
   isRestricted: boolean;
   name: string;
   type: string;
-  volumePercent: string;
+  volumePercent: number;
 }
 
 export interface TrackInfo {
