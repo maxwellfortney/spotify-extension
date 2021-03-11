@@ -11,6 +11,7 @@ import {
 } from './spotify';
 import ColorThief from 'colorthief';
 import { updateTrackCache, updateTrackInfo } from './utils';
+import { DEFAULT_SCROLL_DELTA } from './constants';
 
 const LIMIT = 128;
 const BOX_SHADOW = '10px 0px 20px 15px';
@@ -252,24 +253,20 @@ export function displayControlButtons(mode: ButtonType) {
   }
 }
 
-export function displayVolumeControl(volumePercent: number, shouldSetinputValue: boolean) {
+export function displayVolumeControl(volumePercent: number, shouldSetInputValue: boolean) {
   const volumeSlider = document.getElementById('volume') as HTMLInputElement;
   const volumeIcon = document.getElementById('volume-icon');
   const volumeMutedIcon = document.getElementById('volume-muted-icon');
 
-  if (volumePercent === 0) {
-    if (volumeIcon && volumeMutedIcon) {
-      volumeMutedIcon.style.display = 'flex';
-      volumeIcon.style.display = 'none';
-    }
-  } else {
-    if (volumeIcon && volumeMutedIcon) {
-      volumeMutedIcon.style.display = 'none';
-      volumeIcon.style.display = 'flex';
-    }
+  if (volumePercent === 0 && volumeIcon && volumeMutedIcon) {
+    volumeMutedIcon.classList.remove('mini-spotify-volume-button-hide');
+    volumeIcon.classList.add('mini-spotify-volume-button-hide');
+  } else if (volumeIcon && volumeMutedIcon) {
+    volumeMutedIcon.classList.add('mini-spotify-volume-button-hide');
+    volumeIcon.classList.remove('mini-spotify-volume-button-hide');
   }
 
-  if (shouldSetinputValue && volumeSlider) {
+  if (shouldSetInputValue && volumeSlider) {
     volumeSlider.value = volumePercent.toString();
   }
 }
@@ -309,36 +306,51 @@ export function registerEvents(token: Token, device: Device, playback: TrackInfo
   const volumeSlider = document.getElementById('volume') as HTMLInputElement;
   const volumeIcon = document.getElementById('volume-icon');
   const volumeMutedIcon = document.getElementById('volume-muted-icon');
+  const volumeContainer = document.getElementById('volume-container');
 
-  // Initial a debounce timer in order to prevent excessive PUT requests to Spotify API on all onmousemove events
+  // Initialize a debounce timer in order to prevent excessive PUT requests to Spotify API on all onmousemove events
   let debounceTimer = null;
   let savedVolume = device.volumePercent;
 
-  let scrollDelta = 5;
+  // Necessary to keep showing the volume slider if the user is changing the volume with wheel
+  let hideVolumeTimout = null;
+  let hideVolumeSubTimout = null;
 
-  document.addEventListener('wheel', async (e: any) => {
-    console.log(e);
+  document.addEventListener('wheel', async (e) => {
     const inputVal = parseInt(volumeSlider.value);
 
-    e.preventDefault();
+    volumeSlider.classList.add('mini-spotify-left-panel-volume-expand');
+    volumeSlider.classList.remove('mini-spotify-left-panel-volume-hidden');
 
+    // Show the slider for 1000ms, then hide the slider
+    if (hideVolumeTimout) clearTimeout(hideVolumeTimout);
+    if (hideVolumeSubTimout) clearTimeout(hideVolumeSubTimout);
+
+    hideVolumeTimout = setTimeout(() => {
+      volumeSlider.classList.remove('mini-spotify-left-panel-volume-expand');
+      hideVolumeSubTimout = setTimeout(() => {
+        volumeSlider.classList.add('mini-spotify-left-panel-volume-hidden');
+      }, 350);
+    }, 1000);
+
+    e.preventDefault();
     if (e.deltaY > 0) {
       //Wheen down
-      if (inputVal - scrollDelta <= 0) {
+      if (inputVal - DEFAULT_SCROLL_DELTA <= 0) {
         displayVolumeControl(0, true);
         await setVolume(0, token.accessToken);
       } else {
-        displayVolumeControl(inputVal - scrollDelta, true);
-        await setVolume(inputVal - scrollDelta, token.accessToken);
+        displayVolumeControl(inputVal - DEFAULT_SCROLL_DELTA, true);
+        await setVolume(inputVal - DEFAULT_SCROLL_DELTA, token.accessToken);
       }
     } else if (e.deltaY < 0) {
       //Wheel Up
-      if (inputVal + scrollDelta >= 100) {
+      if (inputVal + DEFAULT_SCROLL_DELTA >= 100) {
         displayVolumeControl(100, true);
         await setVolume(100, token.accessToken);
       } else {
-        displayVolumeControl(inputVal + scrollDelta, true);
-        await setVolume(inputVal + scrollDelta, token.accessToken);
+        displayVolumeControl(inputVal + DEFAULT_SCROLL_DELTA, true);
+        await setVolume(inputVal + DEFAULT_SCROLL_DELTA, token.accessToken);
       }
     }
   });
@@ -348,24 +360,39 @@ export function registerEvents(token: Token, device: Device, playback: TrackInfo
     if (inputVal !== device.volumePercent) {
       if (debounceTimer) clearTimeout(debounceTimer);
 
-      setTimeout(async () => {
+      debounceTimer = setTimeout(async () => {
         displayVolumeControl(inputVal, false);
         await setVolume(inputVal, token.accessToken);
-      }, 67);
+      }, 30);
     }
-
-    console.log(inputVal);
   };
 
-  volumeIcon.onclick = async function (e) {
+  volumeIcon.onclick = async function () {
     savedVolume = parseInt(volumeSlider.value);
     displayVolumeControl(0, true);
     await setVolume(0, token.accessToken);
   };
 
-  volumeMutedIcon.onclick = async function (e) {
+  volumeIcon.onmouseenter = async function () {
+    volumeSlider.classList.add('mini-spotify-left-panel-volume-expand');
+    volumeSlider.classList.remove('mini-spotify-left-panel-volume-hidden');
+  };
+
+  volumeMutedIcon.onclick = async function () {
     displayVolumeControl(savedVolume, true);
     await setVolume(savedVolume, token.accessToken);
+  };
+
+  volumeMutedIcon.onmouseenter = async function () {
+    volumeSlider.classList.add('mini-spotify-left-panel-volume-expand');
+    volumeSlider.classList.remove('mini-spotify-left-panel-volume-hidden');
+  };
+
+  volumeContainer.onmouseleave = async function () {
+    volumeSlider.classList.remove('mini-spotify-left-panel-volume-expand');
+    setTimeout(() => {
+      volumeSlider.classList.add('mini-spotify-left-panel-volume-hidden');
+    }, 350);
   };
 
   document.addEventListener('keydown', async (e) => {
