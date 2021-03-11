@@ -11,7 +11,7 @@ import {
 } from './spotify';
 import ColorThief from 'colorthief';
 import { updateTrackCache, updateTrackInfo } from './utils';
-import { DEFAULT_SCROLL_DELTA } from './constants';
+import { DEFAULT_SCROLL_DELTA, VOLUME_ANIMATION_HIDE_TIME, VOLUME_ANIMATION_SHOW_TIME } from './constants';
 
 const LIMIT = 128;
 const BOX_SHADOW = '10px 0px 20px 15px';
@@ -313,8 +313,8 @@ export function registerEvents(token: Token, device: Device, playback: TrackInfo
   let savedVolume = device.volumePercent;
 
   // Necessary to keep showing the volume slider if the user is changing the volume with wheel
-  let hideVolumeTimout = null;
-  let hideVolumeSubTimout = null;
+  let hideVolumeTimeout = null;
+  let hideVolumeSubTimeout = null;
 
   document.addEventListener('wheel', async (e) => {
     const inputVal = parseInt(volumeSlider.value);
@@ -322,16 +322,16 @@ export function registerEvents(token: Token, device: Device, playback: TrackInfo
     volumeSlider.classList.add('mini-spotify-left-panel-volume-expand');
     volumeSlider.classList.remove('mini-spotify-left-panel-volume-hidden');
 
-    // Show the slider for 1000ms, then hide the slider
-    if (hideVolumeTimout) clearTimeout(hideVolumeTimout);
-    if (hideVolumeSubTimout) clearTimeout(hideVolumeSubTimout);
+    // Show the slider for VOLUME_ANIMATION_SHOW_TIMEms, then hide the slider
+    if (hideVolumeTimeout) clearTimeout(hideVolumeTimeout);
+    if (hideVolumeSubTimeout) clearTimeout(hideVolumeSubTimeout);
 
-    hideVolumeTimout = setTimeout(() => {
+    hideVolumeTimeout = setTimeout(() => {
       volumeSlider.classList.remove('mini-spotify-left-panel-volume-expand');
-      hideVolumeSubTimout = setTimeout(() => {
+      hideVolumeSubTimeout = setTimeout(() => {
         volumeSlider.classList.add('mini-spotify-left-panel-volume-hidden');
-      }, 350);
-    }, 1000);
+      }, VOLUME_ANIMATION_HIDE_TIME);
+    }, VOLUME_ANIMATION_SHOW_TIME);
 
     e.preventDefault();
     if (e.deltaY > 0) {
@@ -392,7 +392,7 @@ export function registerEvents(token: Token, device: Device, playback: TrackInfo
     volumeSlider.classList.remove('mini-spotify-left-panel-volume-expand');
     setTimeout(() => {
       volumeSlider.classList.add('mini-spotify-left-panel-volume-hidden');
-    }, 350);
+    }, VOLUME_ANIMATION_HIDE_TIME);
   };
 
   document.addEventListener('keydown', async (e) => {
